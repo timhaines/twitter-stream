@@ -33,7 +33,7 @@ module Twitter
       :proxy        => ENV['HTTP_PROXY'],
       :auth         => nil,
       :oauth        => {},
-      :filters      => []
+      :params      => {}
     }
 
     attr_accessor :code
@@ -188,7 +188,7 @@ module Twitter
 
       content = @options[:content]
 
-      if !@options[:filters].empty?
+      if !@options[:params].empty?
         if @options[:method].to_s.upcase == 'GET'
           request_uri << "?#{query}"
         else
@@ -269,7 +269,7 @@ module Twitter
       @reconnect_retries = 0
     end
 
-    # :filters => %w(miama lebron jesus)
+    # :params => {:follow => [1, 2, 3]}
     # :oauth => {
     #   :consumer_key    => [key],
     #   :consumer_secret => [token],
@@ -284,7 +284,9 @@ module Twitter
     # Normalized query hash of escaped string keys and escaped string values
     # nil values are skipped
     def params
-      { 'track' => escape(@options[:filters].join(",")) }
+      params = {}
+      @options[:params].each{|key, value| params[key.to_s] = escape((value.class == Array ? value.join(",") : value))}
+      params
     end
 
     def query
