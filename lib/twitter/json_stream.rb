@@ -278,7 +278,7 @@ module Twitter
     # }
     def oauth_header
       uri = "http://#{@options[:host]}#{@options[:path]}"
-      puts "Params is #{params}"
+      #puts "Params is #{params}"
       ::ROAuth.header(@options[:oauth], uri, params, @options[:method])
     end
 
