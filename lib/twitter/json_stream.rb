@@ -99,7 +99,9 @@ module Twitter
     end
 
     def unbind
+      # puts "Unbinding!  Retries is at #{reconnect_retries} and inactivity timeout is at #{comm_inactivity_timeout}"      
       receive_line(@buffer.flush) unless @buffer.empty?
+      @state   = :init
       schedule_reconnect unless @gracefully_closed
     end
 
@@ -116,10 +118,12 @@ module Twitter
     end
 
     def connection_completed
+      # puts "connection completed!"
       send_request
     end
 
     def post_init
+      # puts "Post init called - reseting state!"
       reset_state
     end
 
@@ -265,6 +269,9 @@ module Twitter
     end
 
     def reset_timeouts
+      # puts "reseting timeouts!"
+      set_comm_inactivity_timeout @options[:timeout] if @options[:timeout] > 0      
+      # puts "comm_inactivity_timeout is #{comm_inactivity_timeout} because @options[:timeout] is #{@options[:timeout]}"      
       @nf_last_reconnect = @af_last_reconnect = nil
       @reconnect_retries = 0
     end
