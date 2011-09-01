@@ -103,6 +103,10 @@ module Twitter
     def on_error &block
       @error_callback = block
     end
+    
+    def on_connect &block
+      @connect_callback = block
+    end  
 
     def on_reconnect &block
       @reconnect_callback = block
@@ -145,7 +149,7 @@ module Twitter
     end
 
     def connection_completed
-      log "connection completed! "
+      @connect_callback.call if @connect_callback
       send_request
     end
 
