@@ -60,7 +60,7 @@ module Twitter
         port = proxy_uri.port
       end
 
-      logger.info "** Connecting with #{host} #{port} #{options.inspect}"
+      options[:logger].info "** Connecting with #{host} #{port} #{options.inspect}" if options[:logger]
       connection = EventMachine.connect host, port, self, options
       connection.start_tls if options[:ssl]
       connection.pending_connect_timeout = 5.0
