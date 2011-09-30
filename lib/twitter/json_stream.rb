@@ -348,7 +348,7 @@ module Twitter
     #   :access_secret   => [access secret]
     # }
     def oauth_header
-      uri = "http://#{@options[:host]}#{@options[:path]}"
+      uri = "http#{"s" if @options[:ssl]}://#{@options[:host]}#{@options[:path]}"
       #log "Params is #{params}"
       ::ROAuth.header(@options[:oauth], uri, params, @options[:method])
     end
