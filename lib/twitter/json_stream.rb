@@ -26,7 +26,7 @@ module Twitter
       :content      => '',
       :path         => '/1/statuses/filter.json',
       :host         => 'stream.twitter.com',
-      :port         => 80,
+      :port         => 443,
       :ssl          => true,
       :user_agent   => 'TwitterStream',
       :timeout      => 0,
