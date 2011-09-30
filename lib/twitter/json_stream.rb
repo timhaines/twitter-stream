@@ -27,7 +27,7 @@ module Twitter
       :path         => '/1/statuses/filter.json',
       :host         => 'stream.twitter.com',
       :port         => 80,
-      :ssl          => false,
+      :ssl          => true,
       :user_agent   => 'TwitterStream',
       :timeout      => 0,
       :proxy        => ENV['HTTP_PROXY'],
