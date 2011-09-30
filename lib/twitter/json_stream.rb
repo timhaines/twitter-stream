@@ -28,7 +28,7 @@ module Twitter
       :host         => 'stream.twitter.com',
       :port         => 443,
       :ssl          => true,
-      :user_agent   => 'TwitterStream',
+      :user_agent   => 'Favstar',
       :timeout      => 0,
       :proxy        => ENV['HTTP_PROXY'],
       :auth         => nil,
@@ -60,6 +60,7 @@ module Twitter
         port = proxy_uri.port
       end
 
+      logger.info "** Connecting with #{host} #{port} #{options.inspect}"
       connection = EventMachine.connect host, port, self, options
       connection.start_tls if options[:ssl]
       connection.pending_connect_timeout = 5.0
