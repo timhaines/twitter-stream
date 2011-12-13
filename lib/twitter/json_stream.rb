@@ -244,7 +244,7 @@ module Twitter
         end
       end
 
-      data << "#{@options[:method]} #{request_uri} HTTP/1.1"
+      data << "#{@options[:method]} #{request_uri} HTTP/1.0"
       data << "Host: #{@options[:host]}"
       data << 'Accept: */*'
       data << "User-Agent: #{@options[:user_agent]}" if @options[:user_agent]
