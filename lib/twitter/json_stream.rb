@@ -134,6 +134,7 @@ module Twitter
         @buffer.extract(data).each do |line|
           receive_line(line)
         end
+        @stream = ''
       rescue Exception => e
         receive_error("#{e.class}: " + [e.message, e.backtrace].flatten.join("\n\t"))
         close_connection
@@ -223,6 +224,7 @@ module Twitter
       @headers = []
       @state   = :init
       @buffer  = BufferedTokenizer.new("\r", MAX_LINE_LENGTH)
+      @stream = ''
     end
 
     def send_request
