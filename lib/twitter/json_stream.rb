@@ -291,7 +291,7 @@ module Twitter
         unless ln.empty?
           if ln[0,1] == '{' || ln[ln.length-1,1] == '}'
             @stream << ln
-            if @stream[0,1] == '{' && @stream[@stream.length-1,1] == '}'
+            if @stream[0,1] == '{' && @stream[@stream.length-1,1] == '}' && @stream.count('{') == @stream.count('}')
               @each_item_callback.call(@stream) if @each_item_callback
               @stream = ''
             end
