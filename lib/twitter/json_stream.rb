@@ -2,6 +2,7 @@ require 'eventmachine'
 require 'em/buftok'
 require 'uri'
 require 'roauth'
+require 'JSON'
 
 module Twitter
   class JSONStream < EventMachine::Connection
@@ -291,9 +292,23 @@ module Twitter
         unless ln.empty?
           if ln[0,1] == '{' || ln[ln.length-1,1] == '}'
             @stream << ln
-            if @stream[0,1] == '{' && @stream[@stream.length-1,1] == '}' && @stream.count('{') == @stream.count('}')
-              @each_item_callback.call(@stream) if @each_item_callback
-              @stream = ''
+            if @stream[0,1] == '{' && @stream[@stream.length-1,1] == '}'
+              # If there's an equal number of { and } allow it to be considered complete
+              # This may result in some false positives
+              complete = @stream.count('{') == @stream.count('}')
+              # Perhaps there was a { in a string value - do another check to see if it's valid json
+              unless complete
+                begin
+                  JSON.parse(@stream)
+                  complete = true
+                rescue
+                  complete = false
+                end
+              end
+              if complete
+                @each_item_callback.call(@stream) if @each_item_callback
+                @stream = ''
+              end
             end
           end
         end
