@@ -44,15 +44,15 @@ module Twitter
     attr_accessor :reconnect_retries
     attr_accessor :proxy
     attr_accessor :logger
-    
+
     def self.connect options = {}
       options[:port] = 443 if options[:ssl] && !options.has_key?(:port)
       options = DEFAULT_OPTIONS.merge(options)
 
       host = options[:host]
       port = options[:port]
-      
-      
+
+
 
       if options[:proxy]
         proxy_uri = URI.parse(options[:proxy])
@@ -75,15 +75,15 @@ module Twitter
       @proxy = URI.parse(options[:proxy]) if options[:proxy]
       @logger = options[:logger]
     end
-    
+
     def log msg
       @logger.info "Sig #{signature}: - #{msg}" if @logger
       puts "No Logger!" unless @logger
-    end  
-    
+    end
+
     def warn msg
       @logger.warn "Sig #{signature}: #{msg}" if @logger
-    end  
+    end
 
     def each_item &block
       @each_item_callback = block
@@ -91,15 +91,15 @@ module Twitter
 
     def on_ping &block
       @ping_callback = block
-    end  
+    end
 
     def on_error &block
       @error_callback = block
     end
-    
+
     def on_connect &block
       @connect_callback = block
-    end  
+    end
 
     def on_reconnect &block
       @reconnect_callback = block
@@ -121,12 +121,12 @@ module Twitter
     end
 
     def unbind
-      # log "Unbinding!  Retries is at #{reconnect_retries} and inactivity timeout is at #{comm_inactivity_timeout}"      
+      # log "Unbinding!  Retries is at #{reconnect_retries} and inactivity timeout is at #{comm_inactivity_timeout}"
       receive_line(@buffer.flush) unless @buffer.empty?
       @state   = :init
       EM.add_timer(0) do
         schedule_reconnect unless @gracefully_closed
-      end  
+      end
     end
 
     def receive_data data
@@ -153,12 +153,12 @@ module Twitter
 
     def post_init
       log "Post init called - reseting state! This happens before headers are read."
-      reset_state 
+      reset_state
     end
 
     def schedule_reconnect
       timeout = reconnect_timeout
-      log "Scheduling reconnect in #{timeout} seconds - received code #{@code} previously"      
+      log "Scheduling reconnect in #{timeout} seconds - received code #{@code} previously"
       reset_state
       @reconnect_retries += 1
       if timeout <= RECONNECT_MAX && @reconnect_retries <= RETRIES_MAX
@@ -184,13 +184,13 @@ module Twitter
             reconnect @options[:host], @options[:port]
           rescue => e
             receive_error("Error on Reconnect: #{e.class}: " + [e.message, e.backtrace].flatten.join("\n\t"))
-          end    
+          end
         end
-        
+
         EventMachine.add_timer(timeout) do
           log "That's #{timeout}!"
         end
-        
+
       end
     end
 
@@ -297,11 +297,11 @@ module Twitter
             end
           end
         end
-      else  
+      else
         warn(ln.strip) if ln && ln.strip != ""
         buffer_contents = @buffer.flush.strip
         warn(buffer_contents) if buffer_contents && buffer_contents != ""
-      end                  
+      end
     end
 
     def parse_header_line ln
@@ -312,7 +312,7 @@ module Twitter
           warn(ln) if ln
           buffer_contents = @buffer.flush.strip
           warn(buffer_contents) if buffer_contents && buffer_contents != ""
-        end          
+        end
         @state = :stream
       else
         headers << ln
@@ -324,9 +324,9 @@ module Twitter
         @code = $1.to_i
         @state = :headers
         unless @code == 200
-          warn(ln) 
+          warn(ln)
           warn(@buffer.flush.strip)
-        end  
+        end
         receive_error("invalid status code: #{@code}. #{ln}") unless @code == 200
       else
         receive_error('invalid response')
@@ -336,8 +336,8 @@ module Twitter
 
     def reset_timeouts
       # log "reseting timeouts!"
-      set_comm_inactivity_timeout @options[:timeout] if @options[:timeout] > 0      
-      # log "comm_inactivity_timeout is #{comm_inactivity_timeout} because @options[:timeout] is #{@options[:timeout]}"      
+      set_comm_inactivity_timeout @options[:timeout] if @options[:timeout] > 0
+      # log "comm_inactivity_timeout is #{comm_inactivity_timeout} because @options[:timeout] is #{@options[:timeout]}"
       @nf_last_reconnect = @af_last_reconnect = nil
       @reconnect_retries = 0
     end
