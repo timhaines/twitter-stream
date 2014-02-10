@@ -2,7 +2,7 @@ require 'eventmachine'
 require 'em/buftok'
 require 'uri'
 require 'roauth'
-require 'JSON'
+require 'json'
 
 module Twitter
   class JSONStream < EventMachine::Connection
