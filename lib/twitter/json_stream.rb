@@ -102,6 +102,10 @@ module Twitter
       @connect_callback = block
     end
 
+    def on_headers_received &block
+      @headers_received_callback = block
+    end
+
     def on_reconnect &block
       @reconnect_callback = block
     end
@@ -153,7 +157,7 @@ module Twitter
     end
 
     def post_init
-      log "Post init called - reseting state! This happens before headers are read."
+      # log "Post init called - reseting state! This happens before headers are read."
       reset_state
     end
 
@@ -219,7 +223,7 @@ module Twitter
     end
 
     def reset_state code=0
-      log "reseting state"
+      # log "reseting state"
       set_comm_inactivity_timeout @options[:timeout] if @options[:timeout] > 0
       @code    = code
       @headers = []
@@ -327,7 +331,9 @@ module Twitter
           warn(ln) if ln
           buffer_contents = @buffer.flush.strip
           warn(buffer_contents) if buffer_contents && buffer_contents != ""
+          receive_error("invalid status code: #{@code}. #{ln}")
         end
+        @headers_received_callback.call if @headers_received_callback
         @state = :stream
       else
         headers << ln
@@ -342,7 +348,6 @@ module Twitter
           warn(ln)
           warn(@buffer.flush.strip)
         end
-        receive_error("invalid status code: #{@code}. #{ln}") unless @code == 200
       else
         receive_error('invalid response')
         close_connection
