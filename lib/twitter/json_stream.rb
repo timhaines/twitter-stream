@@ -294,7 +294,7 @@ module Twitter
         ln.strip!
         @ping_callback.call if @ping_callback && ln.empty?
         unless ln.empty?
-          if ln[0,1] == '{' || ln[ln.length-1,1] == '}'
+          if ln[0,1] == '{' || @stream.length > 0
             @stream << ln
             if @stream[0,1] == '{' && @stream[@stream.length-1,1] == '}'
               # If there's an equal number of { and } allow it to be considered complete
@@ -312,6 +312,8 @@ module Twitter
               if complete
                 @each_item_callback.call(@stream) if @each_item_callback
                 @stream = ''
+              else
+                warn("Incomplete line with length: #{@stream.length}")
               end
             end
           end
