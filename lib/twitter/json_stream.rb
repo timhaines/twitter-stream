@@ -139,7 +139,9 @@ module Twitter
         @buffer.extract(data).each do |line|
           receive_line(line)
         end
-        @stream = ''
+        # I don't think we want to do this - allow for lines to be split
+        # And the stream to accumulate
+        # @stream = ''
       rescue Exception => e
         receive_error("#{e.class}: " + [e.message, e.backtrace].flatten.join("\n\t"))
         close_connection
@@ -230,6 +232,7 @@ module Twitter
       @state   = :init
       @buffer  = BufferedTokenizer.new("\r", MAX_LINE_LENGTH)
       @stream = ''
+      @incomplete_message = false
     end
 
     def send_request
@@ -311,9 +314,14 @@ module Twitter
               end
               if complete
                 @each_item_callback.call(@stream) if @each_item_callback
+                if @incomplete_message
+                  warn("Clearing previously incomplete line with length: #{@stream.length}")
+                end
                 @stream = ''
+                @incomplete_message = false
               else
-                warn("Incomplete line with length: #{@stream.length}")
+                warn("INCOMPLETE line with length: #{@stream.length}")
+                @incomplete_message = true
               end
             end
           end
