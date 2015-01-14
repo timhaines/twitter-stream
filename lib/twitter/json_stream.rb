@@ -139,7 +139,9 @@ module Twitter
         @buffer.extract(data).each do |line|
           receive_line(line)
         end
-        @stream = ''
+        unless @first_half_of_incomplete_message
+          @stream = ''
+        end
       rescue Exception => e
         receive_error("#{e.class}: " + [e.message, e.backtrace].flatten.join("\n\t"))
         close_connection
@@ -230,6 +232,7 @@ module Twitter
       @state   = :init
       @buffer  = BufferedTokenizer.new("\r", MAX_LINE_LENGTH)
       @stream = ''
+      @first_half_of_incomplete_message = false
     end
 
     def send_request
@@ -294,7 +297,12 @@ module Twitter
         ln.strip!
         @ping_callback.call if @ping_callback && ln.empty?
         unless ln.empty?
-          if ln[0,1] == '{' || ln[ln.length-1,1] == '}'
+          if ln[0,1] == '{' || (@first_half_of_incomplete_message && ln[ln.length-1,1] == '}')
+            if @stream.length == 0 && ln[ln.length-1,1] != '}'
+              @first_half_of_incomplete_message = true
+            else
+              @first_half_of_incomplete_message = false
+            end
             @stream << ln
             if @stream[0,1] == '{' && @stream[@stream.length-1,1] == '}'
               # If there's an equal number of { and } allow it to be considered complete
