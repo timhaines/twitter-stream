@@ -297,12 +297,13 @@ module Twitter
         ln.strip!
         @ping_callback.call if @ping_callback && ln.empty?
         unless ln.empty?
-          if ln[0,1] == '{' || (@first_half_of_incomplete_message && ln[ln.length-1,1] == '}')
-            if @stream.length == 0 && ln[ln.length-1,1] != '}'
+          if ln[0,1] == '{' || (@first_half_of_incomplete_message && (ln[ln.length-1,1] == '}' || ln.length > 100))
+            if (@stream.length == 0 && ln[ln.length-1,1] != '}') || (@first_half_of_incomplete_message && @stream.length > 0 && ln.length > 100 && ln[ln.length-1,1] != '}')
               @first_half_of_incomplete_message = true
             else
               @first_half_of_incomplete_message = false
             end
+
             @stream << ln
             if @stream[0,1] == '{' && @stream[@stream.length-1,1] == '}'
               # If there's an equal number of { and } allow it to be considered complete
@@ -322,6 +323,10 @@ module Twitter
                 @stream = ''
               end
             end
+          # else
+          #   # When there's a multi-line event, theres sometimes 0 - 4 characters
+          #   # of garbage on an otherwise empty line.  Uncomment this to observe them
+          #   @logger.info "DISCARD #{ln}"
           end
         end
       else
