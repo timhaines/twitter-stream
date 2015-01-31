@@ -294,9 +294,15 @@ module Twitter
 
     def parse_stream_line ln
       if @code == 200
-        ln.strip!
-        @ping_callback.call if @ping_callback && ln.empty?
-        unless ln.empty?
+
+        # Strip the leading newline
+        # ln.strip!   <== This is bad becase in multi-line messages there's sometimes leading or trailing
+        #                   spaces.  i.e. from text or timestamp fields
+        ln[0] = '' if ln[0] == "\n"
+
+        # Sometimes the ln can still be solely a "\n" - treat those as empty
+        @ping_callback.call if @ping_callback && ln.strip.empty?
+        unless ln.strip.empty?
           if ln[0,1] == '{' || (@first_half_of_incomplete_message && (ln[ln.length-1,1] == '}' || ln.length > 100))
             if (@stream.length == 0 && ln[ln.length-1,1] != '}') || (@first_half_of_incomplete_message && @stream.length > 0 && ln.length > 100 && ln[ln.length-1,1] != '}')
               @first_half_of_incomplete_message = true
