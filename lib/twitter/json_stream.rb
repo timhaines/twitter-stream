@@ -6,8 +6,6 @@ require 'json'
 
 module Twitter
   class JSONStream < EventMachine::Connection
-    MAX_LINE_LENGTH = 1024*1024*1024
-
     # network failure reconnections
     NF_RECONNECT_START = 0.25
     NF_RECONNECT_ADD   = 1.00
@@ -230,7 +228,7 @@ module Twitter
       @code    = code
       @headers = []
       @state   = :init
-      @buffer  = BufferedTokenizer.new("\r", MAX_LINE_LENGTH)
+      @buffer  = BufferedTokenizer.new("\r")
       @stream = ''
       @first_half_of_incomplete_message = false
     end
