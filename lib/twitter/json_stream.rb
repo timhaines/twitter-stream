@@ -125,7 +125,7 @@ module Twitter
 
     def unbind
       # log "Unbinding!  Retries is at #{reconnect_retries} and inactivity timeout is at #{comm_inactivity_timeout}"
-      receive_line(@buffer.flush) unless @buffer.empty?
+      receive_line(@buffer.flush) # unless @buffer.empty?
       @state   = :init
       EM.add_timer(0) do
         schedule_reconnect unless @gracefully_closed
